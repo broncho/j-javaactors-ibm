@@ -1,7 +1,6 @@
-package com.ibm.actor.test;
+package com.ibm.actor.com.ibm.actor.test;
 
 import com.ibm.actor.AbstractActor;
-import com.ibm.actor.DefaultMessage;
 
 /**
  * An Actor superclass that provided access to a runtime helper. 

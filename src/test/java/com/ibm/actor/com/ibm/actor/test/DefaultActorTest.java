@@ -1,4 +1,4 @@
-package com.ibm.actor.test;
+package com.ibm.actor.com.ibm.actor.test;
 
 import java.math.BigInteger;
 import java.util.Date;
@@ -14,12 +14,9 @@ import javax.swing.event.ChangeListener;
 
 import com.ibm.actor.AbstractActor;
 import com.ibm.actor.Actor;
-import com.ibm.actor.ActorManager;
 import com.ibm.actor.DefaultActorManager;
 import com.ibm.actor.DefaultMessage;
 import com.ibm.actor.Message;
-import com.ibm.actor.MessageEvent;
-import com.ibm.actor.MessageListener;
 import com.ibm.actor.logging.DefaultLogger;
 import com.ibm.actor.utils.Utils;
 
