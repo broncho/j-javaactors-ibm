@@ -1,4 +1,4 @@
-package com.ibm.actor.com.ibm.actor.test;
+package com.ibm.actor.test;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

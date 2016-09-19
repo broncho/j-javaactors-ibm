@@ -7,8 +7,6 @@ package com.ibm.actor;
  */
 
 
-
-
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,258 +15,269 @@ import java.util.regex.Pattern;
 import com.ibm.actor.utils.Utils;
 
 /**
- * A partial implementation of an Actor for running in a DefaultActorManager. 
- * 
- * @author BFEIGENB
+ * A partial implementation of an Actor for running in a DefaultActorManager.
  *
+ * @author BFEIGENB
  */
 public abstract class AbstractActor extends Utils implements Actor {
-	public static final int DEFAULT_MAX_MESSAGES = 100;
-	protected DefaultActorManager manager;
 
-	public ActorManager getManager() {
-		return manager;
-	}
+    public static final int DEFAULT_MAX_MESSAGES = 100;
 
-	public void setManager(DefaultActorManager manager) {
-		if (this.manager != null && manager != null) {
-			throw new IllegalStateException(
-					"cannot change manager of attached actor");
-		}
-		this.manager = manager;
-	}
+    protected DefaultActorManager manager;
 
-	protected String name;
+    public ActorManager getManager() {
+        return manager;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    public void setManager(DefaultActorManager manager) {
+        if (this.manager != null && manager != null) {
+            throw new IllegalStateException(
+                    "cannot change manager of attached actor");
+        }
+        this.manager = manager;
+    }
 
-	@Override
-	public void setName(String name) {
-		if (manager != null) {
-			throw new IllegalStateException("cannot change name if manager set");
-		}
-		this.name = name;
-	}
+    protected String name;
 
-	protected String category = DEFAULT_CATEGORY;
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String getCategory() {
-		return category;
-	}
+    @Override
+    public void setName(String name) {
+        if (manager != null) {
+            throw new IllegalStateException("cannot change name if manager set");
+        }
+        this.name = name;
+    }
 
-	@Override
-	public void setCategory(String category) {
-		this.category = category;
-	}
+    protected String category = DEFAULT_CATEGORY;
 
-	/**
-	 * Process a message conditionally. If testMessage() returns null no message
-	 * will be consumed.
-	 * 
-	 * @see AbstractActor#testMessage()
-	 */
-	@Override
-	public boolean receive() {
-		Message m = testMessage();
-		boolean res = m != null;
-		if (res) {
-			boolean f = remove(m);
-			if (!f) {
-				logger.warning("receive message not removed: %s", m);
-			}
-			DefaultMessage dm = (DefaultMessage) m;
-			try {
-				dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.DELIVERED));
-				//logger.trace("receive %s processing %s", this.getName(), m);
-				loopBody(m);
-				dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.COMPLETED));
-			} catch (Exception e) {
-				dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.FAILED));
-				logger.error("loop exception", e);
-			}
-		}
-		manager.awaitMessage(this);
-		return res;
-	}
+    @Override
+    public String getCategory() {
+        return category;
+    }
 
-	/**
-	 * Test to see if a message should be processed. Subclasses should override
-	 */
-	@Override
-	public boolean willReceive(String subject) {
-		return !isEmpty(subject); // default receive all subjects
-	}
+    @Override
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
-	/** Test the current message. Default action is to accept all. */
-	protected Message testMessage() {
-		return getMatch(null, false);
-	}
+    /**
+     * Process a message conditionally. If testMessage() returns null no message
+     * will be consumed.
+     *
+     * @see AbstractActor#testMessage()
+     */
+    @Override
+    public boolean receive() {
+        Message m = testMessage();
+        boolean res = m != null;
+        if (res) {
+            boolean f = remove(m);
+            if (!f) {
+                logger.warning("receive message not removed: %s", m);
+            }
+            DefaultMessage dm = (DefaultMessage) m;
+            try {
+                dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.DELIVERED));
+                //logger.trace("receive %s processing %s", this.getName(), m);
+                loopBody(m);
+                dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.COMPLETED));
+            } catch (Exception e) {
+                dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.FAILED));
+                logger.error("loop exception", e);
+            }
+        }
+        manager.awaitMessage(this);
+        return res;
+    }
 
-	/** Process the accepted subject. */
-	abstract protected void loopBody(Message m);
+    /**
+     * Test to see if a message should be processed. Subclasses should override
+     */
+    @Override
+    public boolean willReceive(String subject) {
+        return !isEmpty(subject); // default receive all subjects
+    }
 
-	/** Test a message against a defined subject pattern. */
-	protected DefaultMessage getMatch(String subject, boolean isRegExpr) {
-		DefaultMessage res = null;
-		synchronized (messages) {
-			res = (DefaultMessage) peekNext(subject, isRegExpr);
-		}
-		return res;
-	}
+    /**
+     * Test the current message. Default action is to accept all.
+     */
+    protected Message testMessage() {
+        return getMatch(null, false);
+    }
 
-	protected List<DefaultMessage> messages = new LinkedList<DefaultMessage>();
+    /**
+     * Process the accepted subject.
+     */
+    abstract protected void loopBody(Message m);
 
-	public DefaultMessage[] getMessages() {
-		return messages.toArray(new DefaultMessage[messages.size()]);
-	}
+    /**
+     * Test a message against a defined subject pattern.
+     */
+    protected DefaultMessage getMatch(String subject, boolean isRegExpr) {
+        DefaultMessage res = null;
+        synchronized (messages) {
+            res = (DefaultMessage) peekNext(subject, isRegExpr);
+        }
+        return res;
+    }
 
-	@Override
-	public int getMessageCount() {
-		synchronized (messages) {
-			return messages.size();
-		}
-	}
+    protected List<DefaultMessage> messages = new LinkedList<DefaultMessage>();
 
-	/**
-	 * Limit the number of messages that can be received.  Subclasses should override.
-	 */
-	@Override
-	public int getMaxMessageCount() {
-		return DEFAULT_MAX_MESSAGES;
-	}
+    public DefaultMessage[] getMessages() {
+        return messages.toArray(new DefaultMessage[messages.size()]);
+    }
 
-	/** Queue a messaged to be processed later. */
-	public void addMessage(DefaultMessage message) {
-		if (message != null) {
-			synchronized (messages) {
-				if (messages.size() < getMaxMessageCount()) {
-					messages.add(message);
-					// messages.notifyAll();
-				} else {
-					throw new IllegalStateException("too many messages, cannot add");
-				}
-			}
-		} 
-	}
+    @Override
+    public int getMessageCount() {
+        synchronized (messages) {
+            return messages.size();
+        }
+    }
 
-	@Override
-	public Message peekNext() {
-		return peekNext(null);
-	}
+    /**
+     * Limit the number of messages that can be received.  Subclasses should override.
+     */
+    @Override
+    public int getMaxMessageCount() {
+        return DEFAULT_MAX_MESSAGES;
+    }
 
-	@Override
-	public Message peekNext(String subject) {
-		return peekNext(subject, false);
-	}
+    /**
+     * Queue a messaged to be processed later.
+     */
+    public void addMessage(DefaultMessage message) {
+        if (message != null) {
+            synchronized (messages) {
+                if (messages.size() < getMaxMessageCount()) {
+                    messages.add(message);
+                    // messages.notifyAll();
+                } else {
+                    throw new IllegalStateException("too many messages, cannot add");
+                }
+            }
+        }
+    }
 
-	/** 
-	 * See if a message exists that meets the selection criteria. 
-	 **/
-	@Override
-	public Message peekNext(String subject, boolean isRegExpr) {
-		Message res = null;
-		if (isActive) {
-			Pattern p = subject != null ? (isRegExpr ? Pattern.compile(subject)
-					: null) : null;
-			long now = new Date().getTime();
-			synchronized (messages) {
-				for (DefaultMessage m : messages) {
-					if (m.getDelayUntil() <= now) {
-						boolean match = subject == null
-								|| (isRegExpr ? m.subjectMatches(p) : m
-										.subjectMatches(subject));
-						if (match) {
-							res = m;
-							break;
-						}
-					}
-				}
-			}
-		}
-		// logger.trace("peekNext %s, %b: %s", subject, isRegExpr, res);
-		return res;
-	}
+    @Override
+    public Message peekNext() {
+        return peekNext(null);
+    }
 
-	@Override
-	public boolean remove(Message message) {
-		synchronized (messages) {
-			return messages.remove(message);
-		}
-	}
+    @Override
+    public Message peekNext(String subject) {
+        return peekNext(subject, false);
+    }
 
-	protected boolean isActive;
+    /**
+     * See if a message exists that meets the selection criteria.
+     **/
+    @Override
+    public Message peekNext(String subject, boolean isRegExpr) {
+        Message res = null;
+        if (isActive) {
+            Pattern p = subject != null ? (isRegExpr ? Pattern.compile(subject)
+                    : null) : null;
+            long now = new Date().getTime();
+            synchronized (messages) {
+                for (DefaultMessage m : messages) {
+                    if (m.getDelayUntil() <= now) {
+                        boolean match = subject == null
+                                || (isRegExpr ? m.subjectMatches(p) : m
+                                .subjectMatches(subject));
+                        if (match) {
+                            res = m;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        // logger.trace("peekNext %s, %b: %s", subject, isRegExpr, res);
+        return res;
+    }
 
-	public boolean isActive() {
-		return isActive;
-	}
+    @Override
+    public boolean remove(Message message) {
+        synchronized (messages) {
+            return messages.remove(message);
+        }
+    }
 
-	@Override
-	public void activate() {
-		isActive = true;
-	}
+    protected boolean isActive;
 
-	@Override
-	public void deactivate() {
-		isActive = false;
-	}
+    public boolean isActive() {
+        return isActive;
+    }
 
-	/** Do startup processing. */
-	protected void runBody() {
-		DefaultMessage m = new DefaultMessage("init");
-		getManager().send(m, null, this);
-	}
+    @Override
+    public void activate() {
+        isActive = true;
+    }
 
-	@Override
-	public void run() {
-		runBody();
-		((DefaultActorManager) getManager()).awaitMessage(this);
-	}
+    @Override
+    public void deactivate() {
+        isActive = false;
+    }
 
-	protected boolean hasThread;
+    /**
+     * Do startup processing.
+     */
+    protected void runBody() {
+        DefaultMessage m = new DefaultMessage("init");
+        getManager().send(m, null, this);
+    }
 
-	public boolean getHasThread() {
-		return hasThread;
-	}
+    @Override
+    public void run() {
+        runBody();
+        ((DefaultActorManager) getManager()).awaitMessage(this);
+    }
 
-	protected void setHasThread(boolean hasThread) {
-		this.hasThread = hasThread;
-	}
+    protected boolean hasThread;
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + "[" + bodyString() + "]";
-	}
+    public boolean getHasThread() {
+        return hasThread;
+    }
 
-	protected String bodyString() {
-		return "name=" + name + ", category=" + category + ", messages="
-				+ messages.size();
-	}
+    protected void setHasThread(boolean hasThread) {
+        this.hasThread = hasThread;
+    }
 
-	volatile protected boolean shutdown;
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + bodyString() + "]";
+    }
 
-	@Override
-	public boolean isShutdown() {
-		return shutdown;
-	}
+    protected String bodyString() {
+        return "name=" + name + ", category=" + category + ", messages="
+                + messages.size();
+    }
 
-	@Override
-	public void shutdown() {
-		shutdown = true;
-	}
+    volatile protected boolean shutdown;
 
-	volatile protected boolean suspended;
+    @Override
+    public boolean isShutdown() {
+        return shutdown;
+    }
 
-	@Override
-	public void setSuspended(boolean f) {
-		suspended = f;
-	}
+    @Override
+    public void shutdown() {
+        shutdown = true;
+    }
 
-	@Override
-	public boolean isSuspended() {
-		return suspended;
-	}
+    volatile protected boolean suspended;
+
+    @Override
+    public void setSuspended(boolean f) {
+        suspended = f;
+    }
+
+    @Override
+    public boolean isSuspended() {
+        return suspended;
+    }
 }

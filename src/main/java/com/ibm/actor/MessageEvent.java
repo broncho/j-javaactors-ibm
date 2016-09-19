@@ -19,6 +19,7 @@ public class MessageEvent extends EventObject {
 	public static enum MessageStatus {SENT, DELIVERED, COMPLETED, FAILED};
 	
 	protected MessageStatus status;
+
 	protected Message message;
 	
 	public MessageStatus getStatus() {
