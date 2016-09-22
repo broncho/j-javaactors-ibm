@@ -1,6 +1,5 @@
 package com.ibm.actor.example.command;
 
-import com.ibm.actor.Actor;
 import com.ibm.actor.ActorManager;
 import com.ibm.actor.DefaultActorManager;
 import com.ibm.actor.DefaultMessage;
