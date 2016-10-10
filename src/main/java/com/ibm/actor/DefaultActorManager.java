@@ -1,7 +1,5 @@
 package com.ibm.actor;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -12,12 +10,18 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ibm.actor.listener.MessageEvent;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
 import com.ibm.actor.utils.Utils;
+
 
 /**
  * Default ActorManager implementation.
@@ -26,9 +30,14 @@ import com.ibm.actor.utils.Utils;
  */
 public class DefaultActorManager extends Utils implements ActorManager {
 
-    public static final int DEFAULT_ACTOR_THREAD_COUNT = 10;
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected static DefaultActorManager instance;
+    /**
+     * Default actor thread count
+     */
+    private static final int DEFAULT_ACTOR_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 2; //old 10
+
+    private static DefaultActorManager instance;
 
     /**
      * Get the default instance. Uses ActorManager.properties for configuration.
@@ -38,28 +47,14 @@ public class DefaultActorManager extends Utils implements ActorManager {
     public static DefaultActorManager getDefaultInstance() {
         if (instance == null) {
             instance = new DefaultActorManager();
-            Map<String, Object> options = null;
-            Properties p = new Properties();
-            try {
-                p.load(new FileInputStream("ActorManager.properties"));
-            } catch (IOException e) {
-                try {
-                    p.load(new FileInputStream("/resource/ActorManager.properties"));
-                } catch (IOException e1) {
-                    try {
-                        p.load(DefaultActorManager.class.getResourceAsStream("/ActorManager.properties"));
-                    } catch (IOException e2) {
-                        logger.warning("DefaultActorManager: no configuration: " + e);
-                    }
-                }
-            }
-            if (!isEmpty(p)) {
-                options = new HashMap<String, Object>();
-                for (Object key : p.keySet()) {
-                    String skey = (String) key;
-                    options.put(skey, p.getProperty(skey));
-                }
-            }
+            instance.initialize(null);
+        }
+        return instance;
+    }
+
+    public static DefaultActorManager getDefaultInstance(Map<String, Object> options) {
+        if (instance == null) {
+            instance = new DefaultActorManager();
             instance.initialize(options);
         }
         return instance;
@@ -70,11 +65,11 @@ public class DefaultActorManager extends Utils implements ActorManager {
      */
     public static final String ACTOR_THREAD_COUNT = "threadCount";
 
-    protected Map<String, AbstractActor> actors = new LinkedHashMap<String, AbstractActor>();
+    private final Map<String, AbstractActor> actors = new LinkedHashMap<>();
 
-    protected Map<String, AbstractActor> runnables = new LinkedHashMap<String, AbstractActor>();
+    private final Map<String, AbstractActor> runnables = new LinkedHashMap<>();
 
-    protected Map<String, AbstractActor> waiters = new LinkedHashMap<String, AbstractActor>();
+    private final Map<String, AbstractActor> waiters = new LinkedHashMap<>();
 
     /**
      * Detach an actor.
@@ -117,7 +112,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected Random rand = new Random();
+    private Random rand = new Random();
 
     /**
      * Create a list of actors in a pseudo-random order.
@@ -181,9 +176,9 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected Map<String, List<Message>> sentMessages = new HashMap<String, List<Message>>();
+    private Map<String, List<Message>> sentMessages = new HashMap<>();
 
-    protected boolean recordSentMessages = true;
+    private boolean recordSentMessages = true;
 
     public boolean getRecordSentMessages() {
         return recordSentMessages;
@@ -211,6 +206,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
         return res != null ? res.toArray(new Message[res.size()]) : null;
     }
+
 
     volatile protected long lastSendTime, lastDispatchTime;
 
@@ -241,7 +237,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected void incDispatchCount() {
+    private void incDispatchCount() {
         synchronized (actors) {
             dispatchCount += 1;
             lastDispatchTime = new Date().getTime();
@@ -249,7 +245,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected void clearDispatchCount() {
+    private void clearDispatchCount() {
         synchronized (actors) {
             dispatchCount = 0;
             lastDispatchCount = 0;
@@ -258,7 +254,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected void updateLastDispatchCount() {
+    private void updateLastDispatchCount() {
         synchronized (actors) {
             lastDispatchCount = dispatchCount;
             dispatchCount = 0;
@@ -437,7 +433,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
         return res;
     }
 
-    protected Map<String, Actor> cloneActors() {
+    private Map<String, Actor> cloneActors() {
         Map<String, Actor> xactors;
         synchronized (actors) {
             xactors = new HashMap<String, Actor>(actors);
@@ -458,7 +454,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected Map<String, ActorRunnable> trunnables = new HashMap<String, ActorRunnable>();
+    private Map<String, ActorRunnable> trunnables = new HashMap<String, ActorRunnable>();
 
     /**
      * Get the Runnable by name.
@@ -535,13 +531,13 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected ThreadGroup threadGroup;
+    private ThreadGroup threadGroup;
 
     public ThreadGroup getThreadGroup() {
         return threadGroup;
     }
 
-    protected void createThread(int i) {
+    private void createThread(int i) {
         addThread("actor" + i);
     }
 
@@ -607,11 +603,11 @@ public class DefaultActorManager extends Utils implements ActorManager {
      *
      * @return priority value
      */
-    public int getThreadPriority() {
+    private int getThreadPriority() {
         return Math.max(Thread.MIN_PRIORITY, Thread.currentThread().getPriority() - 1);
     }
 
-    protected int getThreadCount(Map<String, Object> options) {
+    private int getThreadCount(Map<String, Object> options) {
         Integer count = null;
         Object xcount = options != null ? options.get(ACTOR_THREAD_COUNT) : null;
         if (xcount != null) {
@@ -712,9 +708,9 @@ public class DefaultActorManager extends Utils implements ActorManager {
         }
     }
 
-    protected static int groupCount;
+    private static int groupCount;
 
-    protected List<Thread> threads = new LinkedList<Thread>();
+    private List<Thread> threads = new LinkedList<Thread>();
 
     /**
      * Get the actor threads.
@@ -730,7 +726,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
      */
     @Override
     public void terminateAndWait() {
-        logger.trace("terminateAndWait waiting on termination of %d threads", threads.size());
+        logger.trace("terminateAndWait waiting on termination of {} threads", threads.size());
         terminate();
         waitForThreads();
     }
@@ -738,7 +734,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
     /**
      * Wait for all threads to stop. Must have issued terminate.
      */
-    public void waitForThreads() {
+    private void waitForThreads() {
         if (!terminated) {
             throw new IllegalStateException("not terminated");
         }
@@ -778,7 +774,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
      * Create an actor and associate it with this manager.
      *
      * @param clazz the actor class
-     * @param the   actor name; must be unique
+     * @param name  actor name; must be unique
      */
     @Override
     public Actor createActor(Class<? extends Actor> clazz, String name) {
@@ -789,7 +785,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
      * Create an actor and associate it with this manager then start it
      *
      * @param clazz the actor class
-     * @param the   actor name; must be unique
+     * @param name  actor name; must be unique
      */
     @Override
     public Actor createAndStartActor(Class<? extends Actor> clazz, String name) {
@@ -800,7 +796,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
      * Create an actor and associate it with this manager then start it.
      *
      * @param clazz   the actor class
-     * @param the     actor name; must be unique
+     * @param name    actor name; must be unique
      * @param options actor options
      */
     @Override
@@ -814,7 +810,7 @@ public class DefaultActorManager extends Utils implements ActorManager {
      * Create an actor and associate it with this manager.
      *
      * @param clazz   the actor class
-     * @param the     actor name; must be unique
+     * @param name    actor name; must be unique
      * @param options actor options
      */
     @Override
@@ -859,7 +855,9 @@ public class DefaultActorManager extends Utils implements ActorManager {
         actor.activate();
     }
 
-    protected int trendValue = 0, maxTrendValue = 10;
+    private int trendValue = 0;
+
+    private int maxTrendValue = 10;
 
     public int getTrendValue() {
         return trendValue;

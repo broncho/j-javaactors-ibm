@@ -2,7 +2,7 @@ package com.ibm.actor.example.command;
 
 import java.util.EventObject;
 
-import com.ibm.actor.Message;
+import com.ibm.actor.message.Message;
 
 /**
  * Author: ZhangXiao

@@ -1,5 +1,7 @@
 package com.ibm.actor;
 
+import com.ibm.actor.message.Message;
+
 /**
  * An Actor is a (repeatedly) dispatchable unit of execution. Actors accept
  * messages and perform the operation (subject) they request. In response to

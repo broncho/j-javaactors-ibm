@@ -1,17 +1,21 @@
 package com.ibm.actor;
 
-// TODO: add this to all others
 /*
  * Copyright (C) IBM Corportation, 2102.  All rights reserved.
  * Copyright (C) Barry Feigenbaum, 2102.  All rights reserved.
  */
-
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ibm.actor.listener.MessageEvent;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
 import com.ibm.actor.utils.Utils;
 
 /**
@@ -21,7 +25,9 @@ import com.ibm.actor.utils.Utils;
  */
 public abstract class AbstractActor extends Utils implements Actor {
 
-    public static final int DEFAULT_MAX_MESSAGES = 100;
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private static final int DEFAULT_MAX_MESSAGES = 100;
 
     protected DefaultActorManager manager;
 
@@ -31,8 +37,7 @@ public abstract class AbstractActor extends Utils implements Actor {
 
     public void setManager(DefaultActorManager manager) {
         if (this.manager != null && manager != null) {
-            throw new IllegalStateException(
-                    "cannot change manager of attached actor");
+            throw new IllegalStateException("cannot change manager of attached actor");
         }
         this.manager = manager;
     }
@@ -77,12 +82,12 @@ public abstract class AbstractActor extends Utils implements Actor {
         if (res) {
             boolean f = remove(m);
             if (!f) {
-                logger.warning("receive message not removed: %s", m);
+                logger.warn("receive message not removed: {}", m);
             }
             DefaultMessage dm = (DefaultMessage) m;
             try {
                 dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.DELIVERED));
-                //logger.trace("receive %s processing %s", this.getName(), m);
+                logger.trace("receive {} processing {}", this.getName(), m);
                 loopBody(m);
                 dm.fireMessageListeners(new MessageEvent(this, dm, MessageEvent.MessageStatus.COMPLETED));
             } catch (Exception e) {

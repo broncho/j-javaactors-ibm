@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.ibm.actor.AbstractActor;
-import com.ibm.actor.Message;
+import com.ibm.actor.message.Message;
 
 /**
  * Author: ZhangXiao

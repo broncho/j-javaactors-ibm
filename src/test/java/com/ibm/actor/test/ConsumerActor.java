@@ -3,8 +3,8 @@ package com.ibm.actor.test;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.ibm.actor.DefaultMessage;
-import com.ibm.actor.Message;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
 
 /**
  * An Actor that constructs items. 
@@ -16,13 +16,13 @@ public class ConsumerActor extends TestableActor {
 
 	@Override
 	public void activate() {
-		logger.trace("ConsumerActor activate: %s", this);
+		logger.trace("ConsumerActor activate:{}", this);
 		super.activate();
 	}
 
 	@Override
 	public void deactivate() {
-		logger.trace("ConsumerActor deactivate: %s", this);
+		logger.trace("ConsumerActor deactivate: {}", this);
 		DefaultActorTest.dumpMessages(messages);
 		super.deactivate();
 	}
@@ -38,7 +38,7 @@ public class ConsumerActor extends TestableActor {
 			String type = (String) m.getData();
 			// logger.trace("ConsumerActor:%s construct %s; pending=%d",
 			// getName(), type, messages.size());
-			logger.trace("ConsumerActor:%s constructing %s", getName(), type);
+			logger.trace("ConsumerActor:{} constructing {}", getName(), type);
 			delay(type); // takes ~ 1 to N seconds
 
 			DefaultMessage xm = new DefaultMessage("constructionComplete", type);
@@ -48,7 +48,7 @@ public class ConsumerActor extends TestableActor {
 		} else if ("init".equals(subject)) {
 			// nothing to do
 		} else {
-			logger.warning("ConsumerActor:%s loopBody unknown subject: %s", getName(), subject);
+			logger.warn("ConsumerActor:{} loopBody unknown subject: {}", getName(), subject);
 		}
 	}
 

@@ -3,8 +3,8 @@ package com.ibm.actor.test;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import com.ibm.actor.DefaultMessage;
-import com.ibm.actor.Message;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
 
 /**
  * An actor that can execute a command as a method on a supplied class.
@@ -24,8 +24,8 @@ public class CommandActor extends TestableActor {
 		} else if ("init".equals(subject)) {
 			// nothing to do
 		} else {
-			logger.warning("CommandActor:%s loopBody unknown subject: %s",
-					getName(), subject);
+			logger.warn("CommandActor:{} loopBody unknown subject: {}",
+						getName(), subject);
 		}
 	}
 

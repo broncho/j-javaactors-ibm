@@ -55,8 +55,8 @@ import com.ibm.actor.AbstractActor;
 import com.ibm.actor.Actor;
 import com.ibm.actor.DefaultActorManager;
 import com.ibm.actor.DefaultActorManager.ActorRunnable;
-import com.ibm.actor.DefaultMessage;
-import com.ibm.actor.Message;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
 import com.ibm.actor.logging.DefaultLogger;
 import com.ibm.actor.utils.Utils;
 

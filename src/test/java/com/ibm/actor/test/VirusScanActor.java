@@ -9,8 +9,8 @@ import java.io.InputStream;
 
 import com.ibm.actor.ActorManager;
 import com.ibm.actor.DefaultActorManager;
-import com.ibm.actor.DefaultMessage;
-import com.ibm.actor.Message;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
 
 /**
  * An actor that does a simplified "Virus" (actually files withmultiple text lines) 
@@ -39,7 +39,7 @@ public class VirusScanActor extends TestableActor {
 			if ("scanDir".equals(subject)) {
 				String dir = (String) m.getData();
 				File[] list = new File(dir).listFiles();
-				logger.trace("Scanning directory %s...", dir);
+				logger.trace("Scanning directory {}...", dir);
 				if (manager.getCategorySize(getCategory()) < 50) {
 					createVirusScanActor(manager);
 				}
@@ -56,7 +56,7 @@ public class VirusScanActor extends TestableActor {
 				String file = (String) m.getData();
 				File xfile = new File(file);
 				String xpath = xfile.getCanonicalPath();
-				logger.trace("Scaning file %s...", xpath);
+				logger.trace("Scaning file {}...", xpath);
 				byte[] ba = readBinaryFileContents(xfile);
 				// TODO: check contents here is real app
 				DefaultActorTest.sleeper(1);
@@ -79,7 +79,7 @@ public class VirusScanActor extends TestableActor {
 				if (file != null) {
 					File xfile = new File(file);
 					String xpath = xfile.getCanonicalPath();
-					logger.trace("**** suspect file; %s: %s", message, xpath);
+					logger.trace("**** suspect file; {}: {}", message, xpath);
 				} 
 			} else if ("init".equals(subject)) {
 				String startPath = (String) m.getData();
@@ -88,7 +88,7 @@ public class VirusScanActor extends TestableActor {
 					manager.send(dm, this, getCategoryName());
 				}
 			} else {
-				logger.warning("VirusScanActor:%s loopBody unknown subject: %s", getName(), subject);
+				logger.warn("VirusScanActor:{} loopBody unknown subject: {}", getName(), subject);
 			}
 		} catch (IOException e) {
 			logger.error("VirusScanActor exception", e);

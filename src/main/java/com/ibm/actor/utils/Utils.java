@@ -13,10 +13,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.NodeList;
 
-import com.ibm.actor.logging.DefaultLogger;
-import com.ibm.actor.logging.Logger;
+
 
 /**
  * Assorted utility functions (sort of a kitchen sink). 
@@ -50,7 +51,7 @@ public class Utils {
 
 	private static final int LOG_RETENSION_LENGTH = 1 * 1000 * 1000;
 
-	public static final Logger logger = DefaultLogger.getDefaultInstance();
+	public static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
 	/** File to log connection into. Placed in current temp directory. */
 	public static final String HTTP_CONNECTIONS_LOG_FILE = "connections.log";

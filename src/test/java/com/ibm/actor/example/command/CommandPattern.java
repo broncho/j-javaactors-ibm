@@ -2,7 +2,7 @@ package com.ibm.actor.example.command;
 
 import com.ibm.actor.ActorManager;
 import com.ibm.actor.DefaultActorManager;
-import com.ibm.actor.DefaultMessage;
+import com.ibm.actor.message.DefaultMessage;
 
 /**
  * Author: ZhangXiao

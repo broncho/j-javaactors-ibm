@@ -1,4 +1,4 @@
-package com.ibm.actor;
+package com.ibm.actor.listener;
 
 /**
  * Listener for message reception.
