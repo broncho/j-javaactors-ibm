@@ -1,6 +1,7 @@
-package com.ibm.actor.test;
+package com.ibm.actor.test.actor;
 
 import com.ibm.actor.AbstractActor;
+import com.ibm.actor.test.DefaultActorTest;
 
 /**
  * An Actor superclass that provided access to a runtime helper. 
@@ -9,7 +10,8 @@ import com.ibm.actor.AbstractActor;
  *
  */
 abstract public class TestableActor extends AbstractActor {
-	DefaultActorTest actorTest;
+    
+    DefaultActorTest actorTest;
 
 	public DefaultActorTest getActorTest() {
 		return actorTest;

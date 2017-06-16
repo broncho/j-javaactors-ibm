@@ -1,8 +1,8 @@
 package com.ibm.actor.listener;
 
-import java.util.EventObject;
-
 import com.ibm.actor.message.Message;
+
+import java.util.EventObject;
 
 /**
  * Sent when a message is received.
@@ -19,8 +19,8 @@ public class MessageEvent extends EventObject {
     public enum MessageStatus {
         SENT, DELIVERED, COMPLETED, FAILED
     }
-
-    protected MessageStatus status;
+    
+    private MessageStatus status;
 
     protected Message message;
 

@@ -1,15 +1,15 @@
 package com.ibm.actor.message;
 
+import com.ibm.actor.Actor;
+import com.ibm.actor.listener.MessageEvent;
+import com.ibm.actor.listener.MessageListener;
+import com.ibm.actor.utils.Utils;
+
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.ibm.actor.Actor;
-import com.ibm.actor.listener.MessageEvent;
-import com.ibm.actor.listener.MessageListener;
-import com.ibm.actor.utils.Utils;
 
 
 /**
@@ -118,7 +118,7 @@ public class DefaultMessage extends Utils implements Message {
      * Test if this message subject matches a string.
      */
     public boolean subjectMatches(String s) {
-        return subject != null ? subject.equals(s) : false;
+        return subject != null && subject.equals(s);
     }
 
     /**
@@ -132,8 +132,8 @@ public class DefaultMessage extends Utils implements Message {
         }
         return res;
     }
-
-    protected List<MessageListener> listeners = new LinkedList<MessageListener>();
+    
+    protected List<MessageListener> listeners = new LinkedList<>();
 
     public void addMessageListener(MessageListener l) {
         if (!listeners.contains(l)) {

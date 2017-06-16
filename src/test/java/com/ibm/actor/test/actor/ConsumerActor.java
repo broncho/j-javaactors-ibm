@@ -1,10 +1,12 @@
-package com.ibm.actor.test;
+package com.ibm.actor.test.actor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.ibm.actor.message.DefaultMessage;
 import com.ibm.actor.message.Message;
+import com.ibm.actor.test.DefaultActorTest;
+import com.ibm.actor.test.actor.TestableActor;
 
 /**
  * An Actor that constructs items. 

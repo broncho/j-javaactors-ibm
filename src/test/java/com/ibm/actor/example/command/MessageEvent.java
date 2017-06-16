@@ -1,8 +1,8 @@
 package com.ibm.actor.example.command;
 
-import java.util.EventObject;
-
 import com.ibm.actor.message.Message;
+
+import java.util.EventObject;
 
 /**
  * Author: ZhangXiao
@@ -13,17 +13,17 @@ public class MessageEvent extends EventObject {
     private Message message;
 
     private boolean consumed = false;
-
-    public MessageEvent(Object source, Message message) {
+    
+    MessageEvent(Object source, Message message) {
         super(source);
         this.message = message;
     }
-
-    public boolean isConsumed() {
+    
+    boolean isConsumed() {
         return consumed;
     }
-
-    public void setConsumed(boolean consumed) {
+    
+    void setConsumed(boolean consumed) {
         this.consumed = consumed;
     }
 

@@ -1,4 +1,10 @@
-package com.ibm.actor.test;
+package com.ibm.actor.test.actor;
+
+import com.ibm.actor.ActorManager;
+import com.ibm.actor.DefaultActorManager;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
+import com.ibm.actor.test.DefaultActorTest;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -6,11 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.ibm.actor.ActorManager;
-import com.ibm.actor.DefaultActorManager;
-import com.ibm.actor.message.DefaultMessage;
-import com.ibm.actor.message.Message;
 
 /**
  * An actor that does a simplified "Virus" (actually files withmultiple text lines) 

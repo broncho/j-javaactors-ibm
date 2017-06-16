@@ -1,17 +1,18 @@
 package com.ibm.actor.test;
 
+import com.ibm.actor.Actor;
+import com.ibm.actor.ActorManager;
+import com.ibm.actor.DefaultActorManager;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
+import com.ibm.actor.test.actor.TestableActor;
+
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import com.ibm.actor.Actor;
-import com.ibm.actor.ActorManager;
-import com.ibm.actor.DefaultActorManager;
-import com.ibm.actor.message.DefaultMessage;
-import com.ibm.actor.message.Message;
 
 // Incomplete - ignore, quicksort not appropriate for Map/Reduce, need merge Sort instead
 public class QuicksortActor extends TestableActor {

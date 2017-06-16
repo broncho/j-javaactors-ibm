@@ -1,4 +1,4 @@
-package com.ibm.actor.test;
+package com.ibm.actor.test.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;

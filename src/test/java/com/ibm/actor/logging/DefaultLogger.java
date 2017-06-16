@@ -1,13 +1,12 @@
 package com.ibm.actor.logging;
 
+import com.ibm.actor.utils.Utils;
+
+import javax.swing.*;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
-
-import javax.swing.JTextArea;
-
-import com.ibm.actor.utils.Utils;
 
 /**
  * Default Logger implementation. 
@@ -19,17 +18,10 @@ import com.ibm.actor.utils.Utils;
  * 
  */
 public class DefaultLogger implements Logger {
-	private static final String MTP_PACKAGE_PREFIX = "com.ibm.haac.mtp.";
-
-	private static final String myCname = DefaultLogger.class.getName();
-
-	private static final String MTP_EMAIL_SUBJECT = "Mobile Topic Pods ERROR Notification";
-
-	private static final String MTP_EMAIL = "mtp@us.ibm.com";
-
-	private static final String SMTP_SERVER = "smtp.server";
-
-	private static final String LOGGER_RESOURCE = "logger.properties";
+    
+    private static final String MTP_PACKAGE_PREFIX = "com.ibm.haac.mtp.";
+    
+    private static final String MY_CLASS_NAME = DefaultLogger.class.getName();
 
 	private static DefaultLogger instance;
 
@@ -250,8 +242,8 @@ public class DefaultLogger implements Logger {
 		}
 		return res;
 	}
-
-	protected JTextArea logArea;
+    
+    private JTextArea logArea;
 
 	public JTextArea getLogArea() {
 		return logArea;
@@ -260,14 +252,14 @@ public class DefaultLogger implements Logger {
 	public void setLogArea(JTextArea logArea) {
 		this.logArea = logArea;
 	}
-
-	protected static StackTraceElement getCaller() {
-		StackTraceElement res = null;
+    
+    private static StackTraceElement getCaller() {
+        StackTraceElement res = null;
 		StackTraceElement[] stea = Thread.currentThread().getStackTrace();
 		for (int i = 0; res == null && i < stea.length; i++) {
 			StackTraceElement ste = stea[i];
-			if (ste.getClassName().equals(myCname)) {
-				continue;
+            if (ste.getClassName().equals(MY_CLASS_NAME)) {
+                continue;
 			}
 			if (ste.getClassName().endsWith("Utils")) {
 				continue;
@@ -279,9 +271,9 @@ public class DefaultLogger implements Logger {
 		}
 		return res;
 	}
-
-	protected void syncPrint(PrintStream ps, String text) {
-		synchronized (ps) {
+    
+    private void syncPrint(PrintStream ps, String text) {
+        synchronized (ps) {
 			ps.print(text);
 			ps.flush();
 		}
@@ -301,9 +293,9 @@ public class DefaultLogger implements Logger {
 	public void warning(String message, Object... values) {
 		log(LogLevel.WARNING, message, values);
 	}
-
-	protected String logSevere(LogLevel level, String message, Object... values) {
-		String res = null;
+    
+    private String logSevere(LogLevel level, String message, Object... values) {
+        String res = null;
 		try {
 			if (lastIsThrowable(values)) {
 				res = log(level, Utils.safeFormat(message, values) + ": %s",
@@ -327,8 +319,8 @@ public class DefaultLogger implements Logger {
 	public void error(String message, Object... values) {
 		logSevere(LogLevel.ERROR, message, values);
 	}
-
-	protected String notifyRecepients;
+    
+    private String notifyRecepients;
 
 	public String getNotifyRecepients() {
 		return notifyRecepients;
@@ -342,14 +334,14 @@ public class DefaultLogger implements Logger {
 	public void notify(String message, Object... values) {
 		String msg = logSevere(LogLevel.NOTIFY, message, values);
 	}
-
-	protected boolean lastIsThrowable(Object... values) {
-		return values != null && values.length > 0
+    
+    private boolean lastIsThrowable(Object... values) {
+        return values != null && values.length > 0
 				&& values[values.length - 1] instanceof Throwable;
 	}
-
-	protected String logStackTrace(LogLevel level, Throwable t) {
-		String res = null;
+    
+    private String logStackTrace(LogLevel level, Throwable t) {
+        String res = null;
 		if (t != null && includeStacktrace) {
 			StringWriter sw = new StringWriter();
 			t.printStackTrace(new PrintWriter(sw));
@@ -361,9 +353,9 @@ public class DefaultLogger implements Logger {
 		}
 		return res;
 	}
-
-	protected PrintStream getPrintStream(LogLevel level) {
-		// PrintStream out = level == LogLevel.NOTIFY ? System.err : System.out;
+    
+    private PrintStream getPrintStream(LogLevel level) {
+        // PrintStream out = level == LogLevel.NOTIFY ? System.err : System.out;
 		PrintStream out = System.out;
 		return out;
 	}

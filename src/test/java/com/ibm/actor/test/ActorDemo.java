@@ -1,16 +1,27 @@
 package com.ibm.actor.test;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
+import com.ibm.actor.AbstractActor;
+import com.ibm.actor.Actor;
+import com.ibm.actor.DefaultActorManager;
+import com.ibm.actor.DefaultActorManager.ActorRunnable;
+import com.ibm.actor.logging.DefaultLogger;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
+import com.ibm.actor.test.ui.ImageView;
+import com.ibm.actor.utils.Utils;
+
+import javax.sound.midi.Instrument;
+import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
+import javax.sound.midi.Soundbank;
+import javax.sound.midi.Synthesizer;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -24,42 +35,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import javax.sound.midi.Instrument;
-import javax.sound.midi.MidiChannel;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
-import javax.sound.midi.Soundbank;
-import javax.sound.midi.Synthesizer;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import com.ibm.actor.AbstractActor;
-import com.ibm.actor.Actor;
-import com.ibm.actor.DefaultActorManager;
-import com.ibm.actor.DefaultActorManager.ActorRunnable;
-import com.ibm.actor.message.DefaultMessage;
-import com.ibm.actor.message.Message;
-import com.ibm.actor.logging.DefaultLogger;
-import com.ibm.actor.utils.Utils;
-
 /**
  * A GUI for running and visualizing Actors.
  * The implementation of this GUI is not discussed in this associated article. 
@@ -68,7 +43,8 @@ import com.ibm.actor.utils.Utils;
  *
  */
 public class ActorDemo extends JPanel implements ChangeListener {
-	// TODO: move to new package once imports/publics sorted out
+    
+    // TODO: move to new package once imports/publics sorted out
 
 	public static final int METER_HEIGHT = 50;
 	public static final int METER_WIDTH = 300;
@@ -1015,7 +991,8 @@ public class ActorDemo extends JPanel implements ChangeListener {
 	protected class ThreadHistory {
 		// public Thread thread;
 		public boolean[] running;
-		public String name;
+        
+        public String name;
 
 		public ThreadHistory() {
 			running = new boolean[TIMES_PER_SECOND];
@@ -1036,7 +1013,6 @@ public class ActorDemo extends JPanel implements ChangeListener {
 
 		public int getMaxCount() {
 			return running.length;
-
 		}
 
 		public int getRunningCount() {
@@ -1049,8 +1025,8 @@ public class ActorDemo extends JPanel implements ChangeListener {
 			return count;
 		}
 	}
-
-	protected Map<String, ThreadHistory> threadHistoryMap = new HashMap<String, ThreadHistory>();
+    
+    protected Map<String, ThreadHistory> threadHistoryMap = new HashMap<>();
 
 	protected int safeGetInt(Map<String, Integer> map, String key) {
 		Integer i = map.get(key);

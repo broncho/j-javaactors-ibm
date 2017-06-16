@@ -1,4 +1,4 @@
-package com.ibm.actor.test;
+package com.ibm.actor.test.mr;
 
 public interface MapReduceer {
 	/**

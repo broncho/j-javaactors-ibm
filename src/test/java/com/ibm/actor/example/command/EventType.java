@@ -54,6 +54,7 @@ public enum EventType {
         @Override
         public void onMessage(MessageEvent event) {
             if (event.getMessage().getData() == EventType.ENDED) {
+                event.setConsumed(true);
                 System.out.println("EndedMessageListener : Status : " + event.getMessage().getData());
             }
         }

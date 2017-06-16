@@ -1,5 +1,21 @@
 package com.ibm.actor.test;
 
+import com.ibm.actor.AbstractActor;
+import com.ibm.actor.Actor;
+import com.ibm.actor.DefaultActorManager;
+import com.ibm.actor.logging.DefaultLogger;
+import com.ibm.actor.message.DefaultMessage;
+import com.ibm.actor.message.Message;
+import com.ibm.actor.test.actor.MapReduceActor;
+import com.ibm.actor.test.actor.ProducerActor;
+import com.ibm.actor.test.actor.TestActor;
+import com.ibm.actor.test.actor.TestableActor;
+import com.ibm.actor.test.actor.VirusScanActor;
+import com.ibm.actor.test.mr.SumOfSquaresReducer;
+import com.ibm.actor.utils.Utils;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,87 +25,72 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import com.ibm.actor.AbstractActor;
-import com.ibm.actor.Actor;
-import com.ibm.actor.DefaultActorManager;
-import com.ibm.actor.message.DefaultMessage;
-import com.ibm.actor.message.Message;
-import com.ibm.actor.logging.DefaultLogger;
-import com.ibm.actor.utils.Utils;
-
 /**
  * A set of runtime services for testing actors and a test case driver.
  *
  * @author BFEIGENB
  */
 public class DefaultActorTest extends Utils {
-
+    
     public static final int MAX_IDLE_SECONDS = 10;
-
+    
     // public static final int STEP_COUNT = 3 * 60;
     public static final int TEST_VALUE_COUNT = 1000; // TODO: make bigger
-
+    
+    private Map<String, Actor> testActors = new ConcurrentHashMap<>();
+    
+    private static Random rand = new Random();
+    
+    
     public DefaultActorTest() {
         super();
     }
-
-    private Map<String, Actor> testActors = new ConcurrentHashMap<String, Actor>();
-
-    static Random rand = new Random();
-
+    
+    
     public static int nextInt(int limit) {
         return rand.nextInt(limit);
     }
-
+    
     protected DefaultActorManager getManager() {
         DefaultActorManager am = actorManager != null ? actorManager : new DefaultActorManager();
         return am;
     }
-
-    protected int stepCount = 120;
-
-    public void setStepCount(int stepCount) {
-        this.stepCount = stepCount;
-    }
-
+    
+    private int stepCount = 120;
+    
+    private int threadCount = 10;
+    
     public int getStepCount() {
         return stepCount;
     }
-
-    protected int threadCount = 10;
-
+    
+    public void setStepCount(int stepCount) {
+        this.stepCount = stepCount;
+    }
+    
     public int getThreadCount() {
         return threadCount;
     }
-
+    
     public void setThreadCount(int threadCount) {
         this.threadCount = threadCount;
     }
-
-    public void setTestActors(Map<String, Actor> testActors) {
-        this.testActors = testActors;
-    }
-
-    public Map<String, Actor> getTestActors() {
-        return testActors;
-    }
-
-    public static final int COMMON_ACTOR_COUNT = 10;
+    
+    private static final int COMMON_ACTOR_COUNT = 10;
+    
     public static final int TEST_ACTOR_COUNT = 25;
-    public static final int PRODUCER_ACTOR_COUNT = 25;
-
+    
+    private static final int PRODUCER_ACTOR_COUNT = 25;
+    
     public static void sleeper(int seconds) {
         int millis = seconds * 1000 + -50 + nextInt(100); // a little
         // variation
-        // logger.trace("sleep: %dms", millis);
+        logger.trace("sleep: {} ms", millis);
         sleep(millis);
     }
-
+    
     public static void dumpMessages(List<DefaultMessage> messages) {
-        synchronized (messages) {
+        synchronized(messages) {
             if (messages.size() > 0) {
                 for (DefaultMessage m : messages) {
                     logger.info("{}", m);
@@ -97,53 +98,56 @@ public class DefaultActorTest extends Utils {
             }
         }
     }
-
-    protected List<ChangeListener> listeners = new LinkedList<ChangeListener>();
-
-    public void addChangeListener(ChangeListener l) {
+    
+    private List<ChangeListener> listeners = new LinkedList<ChangeListener>();
+    
+    void addChangeListener(ChangeListener l) {
         if (!listeners.contains(l)) {
             listeners.add(l);
         }
     }
-
-    public void removeChangeListener(ChangeListener l) {
+    
+    void removeChangeListener(ChangeListener l) {
         listeners.remove(l);
     }
-
-    protected void fireChangeListeners(ChangeEvent e) {
+    
+    private void fireChangeListeners(ChangeEvent e) {
         for (ChangeListener l : listeners) {
             l.stateChanged(e);
         }
     }
-
-    protected static String[] types = new String[] {"widget", "framit", "frizzle", "gothca", "splat"};
-
+    
+    private static String[] types = new String[]{"widget", "framit", "frizzle", "gothca", "splat"};
+    
     public static String[] getItemTypes() {
         return types;
     }
-
+    
     public static void main(String[] args) {
         DefaultActorTest at = new DefaultActorTest();
         at.run(args);
         logger.trace("Done");
     }
-
+    
     protected String title;
-
+    
     public String getTitle() {
         return title;
     }
-
+    
+    public Map<String, Actor> getTestActors() {
+        return testActors;
+    }
+    
     public class ActorX extends AbstractActor {
-
+    
         public ActorX() {
             super();
-            // TODO Auto-generated constructor stub
         }
-
+    
         @Override
         protected void loopBody(Message m) {
-            // logger.trace("ActorX:{} loopBody {}: {}", getName(), m, this);
+            logger.trace("ActorX:{} loopBody {}: {}", getName(), m, this);
             sleeper(1);
             String subject = m.getSubject();
             if ("repeat".equals(subject)) {
@@ -183,29 +187,29 @@ public class DefaultActorTest extends Utils {
                 logger.warn("ActorX:{} loopBody unknown subject: {}", getName(), subject);
             }
         }
-
+    
     }
-
+    
     volatile protected boolean done;
-
+    
     public void terminateRun() {
         done = true;
     }
-
+    
     public static String[] getTestNames() {
-        return new String[] {"Countdown", "Producer Consumer", /* "Quicksort", */"MapReduce", "Virus Scan", "All"};
+        return new String[]{"Countdown", "Producer Consumer", /* "Quicksort", */"MapReduce", "Virus Scan", "All"};
     }
-
+    
     DefaultActorManager actorManager;
-
+    
     public DefaultActorManager getActorManager() {
         return actorManager;
     }
-
+    
     public void setActorManager(DefaultActorManager actorManager) {
         this.actorManager = actorManager;
     }
-
+    
     public void run(String[] args) {
         done = false;
         // DefaultLogger.getDefaultInstance().setIncludeDate(false);
@@ -214,7 +218,7 @@ public class DefaultActorTest extends Utils {
         // DefaultLogger.getDefaultInstance().setIncludeThread(false);
         DefaultLogger.getDefaultInstance().setLogToFile(false);
         DefaultLogger.getDefaultInstance().setThreadFieldWidth(10);
-
+        
         int sc = stepCount;
         int tc = threadCount;
         boolean doTest = false, doProduceConsume = false, doQuicksort = false, doMapReduce = false, doVirusScan = false;
@@ -289,7 +293,7 @@ public class DefaultActorTest extends Utils {
             }
             title += "(VirusScan)";
         }
-
+        
         DefaultActorManager am = getManager();
         try {
             Map<String, Object> options = new HashMap<String, Object>();
@@ -316,7 +320,7 @@ public class DefaultActorTest extends Utils {
                     // logger.trace("created: {}", a);
                 }
             }
-
+    
             if (doProduceConsume) {
                 for (int i = 0; i < PRODUCER_ACTOR_COUNT; i++) {
                     Actor a = am.createActor(ProducerActor.class, String.format("producer%02d", i));
@@ -324,29 +328,29 @@ public class DefaultActorTest extends Utils {
                     // logger.trace("created: {}", a);
                 }
             }
-
+    
             if (doVirusScan) {
                 VirusScanActor.createVirusScanActor(am);
-
+        
                 DefaultMessage dm = new DefaultMessage("init", "/downloads");
                 am.send(dm, null, VirusScanActor.getCategoryName());
             }
-
+    
             if (doMapReduce) {
                 BigInteger[] values = new BigInteger[TEST_VALUE_COUNT];
                 for (int i = 0; i < values.length; i++) {
                     values[i] = new BigInteger(Long.toString((long) rand.nextInt(values.length)));
                 }
                 BigInteger[] targets = new BigInteger[Math.max(1, values.length / 10)];
-
+        
                 BigInteger res = new BigInteger("0");
                 for (int i = 0; i < values.length; i++) {
                     res = res.add(values[i].multiply(values[i]));
                 }
-
+        
                 String id = MapReduceActor.nextId();
                 logger.trace("**** MapReduce {} (expected=%d) start: {}", id, res, values);
-
+        
                 // start at least 5 actors
                 MapReduceActor.createMapReduceActor(am, 10);
                 MapReduceActor.createMapReduceActor(am, 10);
@@ -354,16 +358,16 @@ public class DefaultActorTest extends Utils {
                 MapReduceActor.createMapReduceActor(am, 10);
                 MapReduceActor.createMapReduceActor(am, 10);
                 // getTestActors().put(mra.getName(), mra);
-
-                DefaultMessage dm = new DefaultMessage("init", new Object[] {values, targets,
+        
+                DefaultMessage dm = new DefaultMessage("init", new Object[]{values, targets,
                         SumOfSquaresReducer.class});
                 am.send(dm, null, MapReduceActor.getCategoryName());
             }
-
+    
             for (String key : getTestActors().keySet()) {
                 am.startActor(getTestActors().get(key));
             }
-
+    
             for (int i = sc; i > 0; i--) {
                 if (done) {
                     break;
@@ -379,13 +383,13 @@ public class DefaultActorTest extends Utils {
                 setStepCount(i);
                 fireChangeListeners(new ChangeEvent(this));
                 if (i < 10 || i % 10 == 0) {
-                    logger.trace("main waiting: %d...", i);
+                    logger.trace("main waiting: {}...", i);
                 }
                 sleeper(1);
             }
             setStepCount(0);
             fireChangeListeners(new ChangeEvent(this));
-
+    
             // logger.trace("main terminating");
             am.terminateAndWait();
         } catch (Exception e) {

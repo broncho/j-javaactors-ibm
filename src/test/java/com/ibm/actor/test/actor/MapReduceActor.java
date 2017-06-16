@@ -1,12 +1,13 @@
-package com.ibm.actor.test;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+package com.ibm.actor.test.actor;
 
 import com.ibm.actor.Actor;
 import com.ibm.actor.ActorManager;
 import com.ibm.actor.message.DefaultMessage;
 import com.ibm.actor.message.Message;
+import com.ibm.actor.test.mr.MapReduceer;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An actor that can do calculations via a suppled MapReducer.

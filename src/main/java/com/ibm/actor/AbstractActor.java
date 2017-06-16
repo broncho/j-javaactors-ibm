@@ -5,18 +5,17 @@ package com.ibm.actor;
  * Copyright (C) Barry Feigenbaum, 2102.  All rights reserved.
  */
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ibm.actor.listener.MessageEvent;
 import com.ibm.actor.message.DefaultMessage;
 import com.ibm.actor.message.Message;
 import com.ibm.actor.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * A partial implementation of an Actor for running in a DefaultActorManager.
@@ -129,8 +128,11 @@ public abstract class AbstractActor extends Utils implements Actor {
         }
         return res;
     }
-
-    protected List<DefaultMessage> messages = new LinkedList<DefaultMessage>();
+    
+    /**
+     * Actor message list
+     */
+    protected final List<DefaultMessage> messages = new LinkedList<>();
 
     public DefaultMessage[] getMessages() {
         return messages.toArray(new DefaultMessage[messages.size()]);
@@ -261,8 +263,8 @@ public abstract class AbstractActor extends Utils implements Actor {
         return "name=" + name + ", category=" + category + ", messages="
                 + messages.size();
     }
-
-    volatile protected boolean shutdown;
+    
+    protected volatile boolean shutdown;
 
     @Override
     public boolean isShutdown() {
@@ -273,8 +275,8 @@ public abstract class AbstractActor extends Utils implements Actor {
     public void shutdown() {
         shutdown = true;
     }
-
-    volatile protected boolean suspended;
+    
+    private volatile boolean suspended;
 
     @Override
     public void setSuspended(boolean f) {

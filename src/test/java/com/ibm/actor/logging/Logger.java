@@ -15,10 +15,9 @@ public interface Logger {
 	 *            content to log (may include substitution symbols)
 	 * @param values
 	 *            to substitute into the message
-	 * 
-	 * @see String#formatNames
-	 */
-	public abstract void info(String message, Object... values);
+     *
+     */
+    void info(String message, Object... values);
 
 	/**
 	 * Log a TRACE message.
@@ -27,10 +26,9 @@ public interface Logger {
 	 *            content to log (may include substitution symbols)
 	 * @param values
 	 *            to substitute into the message
-	 * 
-	 * @see String#formatNames
-	 */
-	public abstract void trace(String message, Object... values);
+     *
+     */
+    void trace(String message, Object... values);
 
 	/**
 	 * Log an WARNINGmessage.
@@ -39,10 +37,9 @@ public interface Logger {
 	 *            content to log (may include substitution symbols)
 	 * @param values
 	 *            to substitute into the message
-	 * 
-	 * @see String#formatNames
-	 */
-	public abstract void warning(String message, Object... values);
+     *
+     */
+    void warning(String message, Object... values);
 
 	/**
 	 * Log an ERROR message. If the values list ends in an Exception, then add
@@ -52,10 +49,9 @@ public interface Logger {
 	 *            content to log (may include substitution symbols)
 	 * @param values
 	 *            to substitute into the message
-	 * 
-	 * @see String#formatNames
-	 */
-	public abstract void error(String message, Object... values);
+     *
+     */
+    void error(String message, Object... values);
 
 	/**
 	 * Log an NOTIFY message. Like an ERROR message but also send an
@@ -66,9 +62,8 @@ public interface Logger {
 	 *            content to log (may include substitution symbols)
 	 * @param values
 	 *            to substitute into the message
-	 * 
-	 * @see String#formatNames
-	 */
-	public abstract void notify(String message, Object... values);
+     *
+     */
+    void notify(String message, Object... values);
 
 }

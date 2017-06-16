@@ -2,11 +2,10 @@ package com.ibm.actor.logging;
 
 /**
  * Log levels supported by a Logger.
- * 
- * 
- * @author bfeigenb
  *
+ * @author bfeigenb
  */
 public enum LogLevel {
-	INFO, TRACE, WARNING, ERROR, NOTIFY
+    
+    INFO, TRACE, WARNING, ERROR, NOTIFY
 }

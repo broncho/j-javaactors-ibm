@@ -1,11 +1,12 @@
-package com.ibm.actor.test;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+package com.ibm.actor.test.actor;
 
 import com.ibm.actor.Actor;
 import com.ibm.actor.message.DefaultMessage;
 import com.ibm.actor.message.Message;
+import com.ibm.actor.test.DefaultActorTest;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**

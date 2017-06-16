@@ -1,10 +1,11 @@
-package com.ibm.actor.test;
-
-import java.util.Date;
+package com.ibm.actor.test.actor;
 
 import com.ibm.actor.Actor;
 import com.ibm.actor.message.DefaultMessage;
 import com.ibm.actor.message.Message;
+import com.ibm.actor.test.DefaultActorTest;
+
+import java.util.Date;
 
 /**
  * An actor that sends messages while counting down a send count.
